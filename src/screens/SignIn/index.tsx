@@ -2,6 +2,7 @@ import { VStack, Heading } from 'native-base';
 import { Envelope, Key } from 'phosphor-react-native';
 
 import Logo from '../../assets/logo_primary.svg';
+import { Button } from '../../components/Button';
 import { TextInput } from '../../components/TextInput';
 
 export function SignIn(): JSX.Element {
@@ -20,7 +21,9 @@ export function SignIn(): JSX.Element {
         autoCapitalize="none"
         autoCorrect={false}
       />
-      <TextInput placeholder="Senha" icon={Key} secureTextEntry />
+      <TextInput mb={8} placeholder="Senha" icon={Key} secureTextEntry />
+
+      <Button w="full">Entrar</Button>
     </VStack>
   );
 }
