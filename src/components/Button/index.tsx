@@ -5,8 +5,6 @@ import {
   useTheme,
 } from 'native-base';
 
-// import { Container } from './styles';
-
 type ButtonProps = IButtonProps & {
   children: string;
   variant?: 'primary' | 'secondary';
