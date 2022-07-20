@@ -8,6 +8,7 @@ import {
 
 import Logo from '../../assets/logo_secondary.svg';
 import { Button } from '../../components/Button';
+import { EmptyList } from '../../components/EmptyList';
 import { Filter } from '../../components/Filter';
 import { IconButton } from '../../components/IconButton';
 import { Order, OrderCard } from '../../components/OrderCard';
@@ -20,14 +21,7 @@ export function Home(): JSX.Element {
     'open',
   );
 
-  const initialOrders: Order[] = [
-    {
-      id: '123',
-      patrimony: '12354687',
-      when: '18/07/2022 as 10:00',
-      status: 'open',
-    },
-  ];
+  const initialOrders: Order[] = [];
 
   const [orders, setOrders] = useState<Order[]>(initialOrders);
 
@@ -79,6 +73,9 @@ export function Home(): JSX.Element {
         <FlatList
           data={orders}
           keyExtractor={order => order.id}
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={{ paddingBottom: 100 }}
+          ListEmptyComponent={<EmptyList status={selectedStatus} />}
           renderItem={({ item: order }) => <OrderCard order={order} />}
         />
 
