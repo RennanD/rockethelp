@@ -15,14 +15,14 @@ import {
   CircleWavyCheck,
 } from 'phosphor-react-native';
 
-export type Order = IPressableProps & {
+export type Order = {
   id: string;
   patrimony: string;
   when: string;
   status: 'open' | 'closed';
 };
 
-type OrderProps = {
+type OrderProps = IPressableProps & {
   order: Order;
 };
 

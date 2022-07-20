@@ -1,3 +1,4 @@
+import { useNavigation } from '@react-navigation/native';
 import { FlatList, Heading, HStack, Text, VStack } from 'native-base';
 import { SignOut } from 'phosphor-react-native';
 import { useState } from 'react';
@@ -21,9 +22,44 @@ export function Home(): JSX.Element {
     'open',
   );
 
-  const initialOrders: Order[] = [];
+  const navigation = useNavigation();
+
+  const initialOrders: Order[] = [
+    {
+      id: '123',
+      patrimony: '12354687',
+      when: '18/07/2022 as 10:00',
+      status: 'open',
+    },
+    {
+      id: '1234',
+      patrimony: '12354687',
+      when: '18/07/2022 as 10:00',
+      status: 'open',
+    },
+    {
+      id: '1235',
+      patrimony: '12354687',
+      when: '18/07/2022 as 10:00',
+      status: 'open',
+    },
+    {
+      id: '1236',
+      patrimony: '12354687',
+      when: '18/07/2022 as 10:00',
+      status: 'open',
+    },
+  ];
 
   const [orders, setOrders] = useState<Order[]>(initialOrders);
+
+  function handleNewOrder() {
+    navigation.navigate('NewOrder');
+  }
+
+  function handleShowOrderDetails(orderId: string) {
+    navigation.navigate('OrderDetails', { orderId });
+  }
 
   return (
     <VStack flex={1} bg="gray.700" pb={bottom}>
@@ -76,10 +112,15 @@ export function Home(): JSX.Element {
           showsVerticalScrollIndicator={false}
           contentContainerStyle={{ paddingBottom: 100 }}
           ListEmptyComponent={<EmptyList status={selectedStatus} />}
-          renderItem={({ item: order }) => <OrderCard order={order} />}
+          renderItem={({ item: order }) => (
+            <OrderCard
+              order={order}
+              onPress={() => handleShowOrderDetails(order.id)}
+            />
+          )}
         />
 
-        <Button>Nova Solicitação</Button>
+        <Button onPress={() => handleNewOrder()}>Nova Solicitação</Button>
       </VStack>
     </VStack>
   );
