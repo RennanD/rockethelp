@@ -5,7 +5,7 @@ import {
   Roboto_700Bold,
 } from '@expo-google-fonts/roboto';
 
-import { Home } from './src/screens/Home';
+import { NewOrder } from './src/screens/NewOrder';
 
 import { Loading } from './src/components/Loading';
 
@@ -24,7 +24,7 @@ export default function App() {
         backgroundColor="transparent"
         translucent
       />
-      {fontsLoaded ? <Home /> : <Loading />}
+      {fontsLoaded ? <NewOrder /> : <Loading />}
     </NativeBaseProvider>
   );
 }
