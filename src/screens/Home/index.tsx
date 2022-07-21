@@ -62,7 +62,7 @@ export function Home(): JSX.Element {
   }
 
   return (
-    <VStack flex={1} bg="gray.700" pb={bottom}>
+    <VStack flex={1} bg="gray.700" pb={bottom + 4}>
       <HStack
         w="full"
         justifyContent="space-between"

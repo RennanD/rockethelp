@@ -9,7 +9,7 @@ export function NewOrder(): JSX.Element {
   const bottom = getBottomSpace();
 
   return (
-    <VStack flex={1} p={6} pb={bottom} bg="gray.600">
+    <VStack flex={1} p={6} pb={bottom + 4} bg="gray.600">
       <Header title="Nova Solicitação" />
 
       <TextInput placeholder="Número do patrimônio" />

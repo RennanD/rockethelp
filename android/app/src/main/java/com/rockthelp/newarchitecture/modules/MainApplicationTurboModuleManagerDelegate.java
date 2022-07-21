@@ -1,4 +1,4 @@
-package com.ihelp.newarchitecture.modules;
+package com.rockthelp.newarchitecture.modules;
 
 import com.facebook.jni.HybridData;
 import com.facebook.react.ReactPackage;
