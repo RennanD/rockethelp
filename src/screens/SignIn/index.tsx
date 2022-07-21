@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 
 import { TouchableWithoutFeedback, Keyboard, Alert } from 'react-native';
 import { VStack, Heading } from 'native-base';
@@ -15,6 +15,8 @@ export function SignIn(): JSX.Element {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+
+  const passwordInputRef = useRef(null);
 
   function handleSingIn() {
     if (!email || !password) {
@@ -63,14 +65,20 @@ export function SignIn(): JSX.Element {
           icon={Envelope}
           autoCapitalize="none"
           autoCorrect={false}
+          returnKeyType="next"
+          onSubmitEditing={() => {
+            passwordInputRef.current?.focus();
+          }}
         />
         <TextInput
+          ref={passwordInputRef}
           mb={8}
           placeholder="Senha"
           icon={Key}
           value={password}
           onChangeText={setPassword}
           secureTextEntry
+          onSubmitEditing={() => handleSingIn()}
         />
 
         <Button isLoading={loading} onPress={() => handleSingIn()} w="full">

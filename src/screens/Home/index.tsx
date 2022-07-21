@@ -1,12 +1,18 @@
-import { useNavigation } from '@react-navigation/native';
-import { FlatList, Heading, HStack, Text, VStack } from 'native-base';
-import { SignOut } from 'phosphor-react-native';
 import { useState } from 'react';
+
+import { FlatList, Heading, HStack, Text, VStack } from 'native-base';
+
+import { useNavigation } from '@react-navigation/native';
+import auth from '@react-native-firebase/auth';
+
+import { SignOut } from 'phosphor-react-native';
+
 import {
   getBottomSpace,
   getStatusBarHeight,
 } from 'react-native-iphone-x-helper';
 
+import { Alert } from 'react-native';
 import Logo from '../../assets/logo_secondary.svg';
 import { Button } from '../../components/Button';
 import { EmptyList } from '../../components/EmptyList';
@@ -61,6 +67,24 @@ export function Home(): JSX.Element {
     navigation.navigate('OrderDetails', { orderId });
   }
 
+  function handleSignOut() {
+    Alert.alert('Sair', 'Deseja realmente sair da aplicação?', [
+      {
+        text: 'Cancelar',
+      },
+      {
+        text: 'Sair do App',
+        onPress: () => {
+          auth()
+            .signOut()
+            .catch(() => {
+              Alert.alert('Erro', 'Não foi possível sair da aplicação');
+            });
+        },
+      },
+    ]);
+  }
+
   return (
     <VStack flex={1} bg="gray.700" pb={bottom + 4}>
       <HStack
@@ -74,7 +98,7 @@ export function Home(): JSX.Element {
       >
         <Logo />
 
-        <IconButton icon={SignOut} />
+        <IconButton icon={SignOut} onPress={() => handleSignOut()} />
       </HStack>
 
       <VStack flex={1} px={6}>
