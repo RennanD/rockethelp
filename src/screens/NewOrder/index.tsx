@@ -39,8 +39,7 @@ export function NewOrder(): JSX.Element {
         Alert.alert('Sucesso', 'Solicitação enviada com sucesso');
         navigation.goBack();
       })
-      .catch(error => {
-        console.log(error);
+      .catch(() => {
         Alert.alert('Erro', 'Não foi possível enviar a solicitação');
       });
   }

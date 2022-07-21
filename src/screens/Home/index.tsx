@@ -1,9 +1,10 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { FlatList, Heading, HStack, Text, VStack } from 'native-base';
 
 import { useNavigation } from '@react-navigation/native';
 import auth from '@react-native-firebase/auth';
+import firestore from '@react-native-firebase/firestore';
 
 import { SignOut } from 'phosphor-react-native';
 
@@ -19,6 +20,8 @@ import { EmptyList } from '../../components/EmptyList';
 import { Filter } from '../../components/Filter';
 import { IconButton } from '../../components/IconButton';
 import { Order, OrderCard } from '../../components/OrderCard';
+import { formatDate } from '../../utils/formatDate';
+import { Loading } from '../../components/Loading';
 
 export function Home(): JSX.Element {
   const top = getStatusBarHeight();
@@ -27,6 +30,7 @@ export function Home(): JSX.Element {
   const [selectedStatus, setSelectedStatus] = useState<'open' | 'closed'>(
     'open',
   );
+  const [loading, setLoading] = useState(true);
 
   const navigation = useNavigation();
 
@@ -85,6 +89,31 @@ export function Home(): JSX.Element {
     ]);
   }
 
+  useEffect(() => {
+    setLoading(true);
+    const subscriber = firestore()
+      .collection('orders')
+      .where('status', '==', selectedStatus)
+      .onSnapshot(response => {
+        const data = response.docs.map(document => {
+          const { patrimony, description, status, createdAt } = document.data();
+
+          return {
+            patrimony,
+            description,
+            status,
+            when: formatDate(createdAt, "dd/MM/yyyy 'às' HH:mm"),
+            id: document.id,
+          };
+        });
+
+        setOrders(data);
+        setLoading(false);
+      });
+
+    return subscriber;
+  }, [selectedStatus]);
+
   return (
     <VStack flex={1} bg="gray.700" pb={bottom + 4}>
       <HStack
@@ -130,19 +159,23 @@ export function Home(): JSX.Element {
           </Filter>
         </HStack>
 
-        <FlatList
-          data={orders}
-          keyExtractor={order => order.id}
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={{ paddingBottom: 100 }}
-          ListEmptyComponent={<EmptyList status={selectedStatus} />}
-          renderItem={({ item: order }) => (
-            <OrderCard
-              order={order}
-              onPress={() => handleShowOrderDetails(order.id)}
-            />
-          )}
-        />
+        {loading ? (
+          <Loading />
+        ) : (
+          <FlatList
+            data={orders}
+            keyExtractor={order => order.id}
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={{ paddingBottom: 100 }}
+            ListEmptyComponent={<EmptyList status={selectedStatus} />}
+            renderItem={({ item: order }) => (
+              <OrderCard
+                order={order}
+                onPress={() => handleShowOrderDetails(order.id)}
+              />
+            )}
+          />
+        )}
 
         <Button onPress={() => handleNewOrder()}>Nova Solicitação</Button>
       </VStack>
