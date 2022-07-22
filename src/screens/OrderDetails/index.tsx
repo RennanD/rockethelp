@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
-import { useRoute } from '@react-navigation/native';
-import { HStack, ScrollView, Text, useTheme, VStack } from 'native-base';
+import { useNavigation, useRoute } from '@react-navigation/native';
+import { Box, HStack, ScrollView, Text, useTheme, VStack } from 'native-base';
 
 import firestore from '@react-native-firebase/firestore';
 
@@ -10,6 +10,7 @@ import {
   DesktopTower,
   Hourglass,
 } from 'phosphor-react-native';
+import { Alert } from 'react-native';
 import { Header } from '../../components/Header';
 import { Order } from '../../components/OrderCard';
 import { OrderFirestoreDTO } from '../../dtos/order.dto';
@@ -32,13 +33,40 @@ type OrderData = Order & {
 export function OrderDetails(): JSX.Element {
   const [order, setOrder] = useState<OrderData>({} as OrderData);
   const [loading, setLoading] = useState(true);
+  const [solutionLoading, setSolutionLoading] = useState(false);
   const [userSolution, setUserSolution] = useState('');
 
   const { colors } = useTheme();
-
+  const navigation = useNavigation();
   const route = useRoute();
 
   const { orderId } = route.params as RouteParams;
+
+  function handleCloseOrder() {
+    if (!userSolution) {
+      Alert.alert('Erro', 'Informe a solução para encerrar');
+      return;
+    }
+
+    setSolutionLoading(true);
+
+    firestore()
+      .collection<OrderFirestoreDTO>('orders')
+      .doc(orderId)
+      .update({
+        status: 'closed',
+        solution: userSolution,
+        closedAt: firestore.FieldValue.serverTimestamp(),
+      })
+      .then(() => {
+        Alert.alert('Sucesso', 'Solicitação encerrada com sucesso.');
+        navigation.goBack();
+      })
+      .catch(() => {
+        Alert.alert('Erro', 'Não foi possível encerrar a solicitação');
+        setSolutionLoading(false);
+      });
+  }
 
   useEffect(() => {
     firestore()
@@ -75,7 +103,9 @@ export function OrderDetails(): JSX.Element {
 
   return (
     <VStack flex={1} bg="gray.700">
-      <Header title="Detalhes da Solicitação" />
+      <Box bg="gray.600" px={6}>
+        <Header title="Detalhes da Solicitação" />
+      </Box>
 
       <HStack bg="gray.500" justifyContent="center" p={4}>
         {order.status === 'closed' ? (
@@ -100,15 +130,15 @@ export function OrderDetails(): JSX.Element {
       >
         <CardDetails
           title="Equipamento"
-          description={`Patrimônio ${order.patrimony}`}
+          description={`Patrimônio: ${order.patrimony}`}
           icon={DesktopTower}
-          footer={order.when}
         />
 
         <CardDetails
           title="Descrição do problema"
           description={order.description}
           icon={Clipboard}
+          footer={`Registrado: ${order.when}`}
         />
 
         {!!order.solution && (
@@ -134,7 +164,13 @@ export function OrderDetails(): JSX.Element {
               textAlignVertical="top"
             />
 
-            <Button mt={4}>Finalizar</Button>
+            <Button
+              isLoading={solutionLoading}
+              onPress={() => handleCloseOrder()}
+              mt={4}
+            >
+              Finalizar
+            </Button>
           </CardDetails>
         )}
       </ScrollView>
