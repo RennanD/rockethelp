@@ -41,7 +41,7 @@ export function SelectAccount(): JSX.Element {
           <VStack
             bg="gray.600"
             py={6}
-            h={200}
+            h={180}
             alignItems="center"
             justifyContent="center"
             rounded="sm"
@@ -66,7 +66,7 @@ export function SelectAccount(): JSX.Element {
               selectedAccountType === 'worker' ? 'secondary.700' : 'gray.600'
             }
             px={6}
-            h={200}
+            h={180}
             alignItems="center"
             justifyContent="center"
           >
