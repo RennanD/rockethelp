@@ -1,10 +1,7 @@
-import { useEffect, useState } from 'react';
-
+/* eslint-disable react/jsx-no-useless-fragment */
 import { FlatList, Heading, HStack, Text, VStack } from 'native-base';
 
 import { useNavigation } from '@react-navigation/native';
-
-import firestore from '@react-native-firebase/firestore';
 
 import { SignOut } from 'phosphor-react-native';
 
@@ -17,27 +14,27 @@ import { Button } from '../../components/Button';
 import { EmptyList } from '../../components/EmptyList';
 import { Filter } from '../../components/Filter';
 import { IconButton } from '../../components/IconButton';
-import { Order, OrderCard } from '../../components/OrderCard';
+import { OrderCard } from '../../components/OrderCard';
 import { Loading } from '../../components/Loading';
 
 import Logo from '../../assets/logo_secondary.svg';
 
 import { useAuth } from '../../hooks/auth';
-import { formatDate } from '../../utils/formatDate';
+import { useOrders } from '../../hooks/orders';
 
 export function Home(): JSX.Element {
   const top = getStatusBarHeight();
   const bottom = getBottomSpace();
 
-  const [selectedStatus, setSelectedStatus] = useState<'open' | 'closed'>(
-    'open',
-  );
-  const [loading, setLoading] = useState(true);
-
   const navigation = useNavigation();
-  const { singOut } = useAuth();
-
-  const [orders, setOrders] = useState<Order[]>([]);
+  const { singOut, user } = useAuth();
+  const {
+    orders,
+    isFetchingOrders,
+    selectStatus,
+    selectedStatus,
+    startedOrder,
+  } = useOrders();
 
   function handleNewOrder() {
     navigation.navigate('NewOrder');
@@ -50,31 +47,6 @@ export function Home(): JSX.Element {
   function handleSignOut() {
     singOut();
   }
-
-  useEffect(() => {
-    setLoading(true);
-    const subscriber = firestore()
-      .collection('orders')
-      .where('status', '==', selectedStatus)
-      .onSnapshot(response => {
-        const data = response.docs.map(document => {
-          const { patrimony, description, status, createdAt } = document.data();
-
-          return {
-            patrimony,
-            description,
-            status,
-            when: formatDate(createdAt, "dd/MM/yyyy 'às' HH:mm"),
-            id: document.id,
-          };
-        });
-
-        setOrders(data);
-        setLoading(false);
-      });
-
-    return subscriber;
-  }, [selectedStatus]);
 
   return (
     <VStack flex={1} bg="gray.700" pb={bottom + 4}>
@@ -105,23 +77,46 @@ export function Home(): JSX.Element {
         </HStack>
 
         <HStack space={3} mb={8}>
-          <Filter
-            isActive={selectedStatus === 'open'}
-            type="open"
-            onPress={() => setSelectedStatus('open')}
-          >
-            Em Aberto
-          </Filter>
+          {user.accountType === 'worker' ? (
+            <>
+              {startedOrder ? (
+                <Filter
+                  isActive={selectedStatus === 'started'}
+                  type="started"
+                  onPress={() => selectStatus('started')}
+                >
+                  Em andamento
+                </Filter>
+              ) : (
+                <Filter
+                  isActive={selectedStatus === 'open'}
+                  type="open"
+                  onPress={() => selectStatus('open')}
+                >
+                  Em Aberto
+                </Filter>
+              )}
+            </>
+          ) : (
+            <Filter
+              isActive={selectedStatus === 'open'}
+              type="open"
+              onPress={() => selectStatus('open')}
+            >
+              Em Aberto
+            </Filter>
+          )}
+
           <Filter
             isActive={selectedStatus === 'closed'}
             type="closed"
-            onPress={() => setSelectedStatus('closed')}
+            onPress={() => selectStatus('closed')}
           >
-            Finalizdos
+            Finalizdas
           </Filter>
         </HStack>
 
-        {loading ? (
+        {isFetchingOrders ? (
           <Loading />
         ) : (
           <FlatList
@@ -139,7 +134,9 @@ export function Home(): JSX.Element {
           />
         )}
 
-        <Button onPress={() => handleNewOrder()}>Nova Solicitação</Button>
+        {user.accountType === 'user' && (
+          <Button onPress={() => handleNewOrder()}>Nova Solicitação</Button>
+        )}
       </VStack>
     </VStack>
   );

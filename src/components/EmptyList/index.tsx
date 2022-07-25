@@ -2,7 +2,7 @@ import { Center, Text, useTheme } from 'native-base';
 import { ChatTeardropText } from 'phosphor-react-native';
 
 type EmptyListProps = {
-  status: 'open' | 'closed';
+  status: 'open' | 'closed' | 'started';
 };
 
 export function EmptyList({ status }: EmptyListProps): JSX.Element {
@@ -10,6 +10,7 @@ export function EmptyList({ status }: EmptyListProps): JSX.Element {
 
   const messageStatus = {
     open: 'em aberto',
+    started: 'em andamento',
     closed: 'finalizadas',
   };
 

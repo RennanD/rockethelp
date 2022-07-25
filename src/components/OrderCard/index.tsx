@@ -19,7 +19,7 @@ export type Order = {
   id: string;
   patrimony: string;
   when: string;
-  status: 'open' | 'closed';
+  status: 'open' | 'closed' | 'started';
 };
 
 type OrderProps = IPressableProps & {
@@ -31,6 +31,7 @@ export function OrderCard({ order, ...rest }: OrderProps): JSX.Element {
 
   const colorType = {
     open: colors.secondary['700'],
+    started: colors.secondary['500'],
     closed: colors.green['300'],
   };
 

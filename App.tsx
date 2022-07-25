@@ -10,6 +10,7 @@ import { Loading } from './src/components/Loading';
 import { THEME } from './src/styles/theme';
 import { Routes } from './src/routes';
 import { AuthProvider } from './src/hooks/auth';
+import { OrdersProvider } from './src/hooks/orders';
 
 export default function App() {
   const [fontsLoaded] = useFonts({
@@ -24,7 +25,11 @@ export default function App() {
         backgroundColor="transparent"
         translucent
       />
-      <AuthProvider>{fontsLoaded ? <Routes /> : <Loading />}</AuthProvider>
+      <AuthProvider>
+        <OrdersProvider>
+          {fontsLoaded ? <Routes /> : <Loading />}
+        </OrdersProvider>
+      </AuthProvider>
     </NativeBaseProvider>
   );
 }

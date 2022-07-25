@@ -3,7 +3,7 @@ import { Text, Button, IButtonProps, useTheme } from 'native-base';
 type FilterProps = IButtonProps & {
   children: string;
   isActive?: boolean;
-  type: 'open' | 'closed';
+  type: 'open' | 'closed' | 'started';
 };
 
 export function Filter({
@@ -16,6 +16,7 @@ export function Filter({
 
   const colorType = {
     open: colors.secondary['700'],
+    started: colors.secondary['500'],
     closed: colors.green['300'],
   };
 
