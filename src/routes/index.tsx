@@ -3,11 +3,10 @@ import { NavigationContainer } from '@react-navigation/native';
 import auth, { FirebaseAuthTypes } from '@react-native-firebase/auth';
 
 import { useEffect, useState } from 'react';
+import { VStack } from 'native-base';
 import { AppRoutes } from './app.routes';
 import { AuthRoutes } from './auth.routes';
 import { Loading } from '../components/Loading';
-
-// import { Container } from './styles';
 
 type UserData = FirebaseAuthTypes.User;
 
@@ -29,8 +28,10 @@ export function Routes(): JSX.Element {
   }
 
   return (
-    <NavigationContainer>
-      {user ? <AppRoutes /> : <AuthRoutes />}
-    </NavigationContainer>
+    <VStack flex={1} bg="gray.700">
+      <NavigationContainer>
+        {user ? <AppRoutes /> : <AuthRoutes />}
+      </NavigationContainer>
+    </VStack>
   );
 }

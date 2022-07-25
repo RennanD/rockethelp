@@ -33,6 +33,7 @@ export function Button({
       h={14}
       rounded="sm"
       bg={variants[variant].bg}
+      opacity={rest.disabled ? 0.5 : 1}
       _pressed={{ bg: variants[variant].pressed }}
       {...rest}
     >
