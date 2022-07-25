@@ -5,18 +5,29 @@ import { VStack, Heading } from 'native-base';
 
 import { Envelope, Key } from 'phosphor-react-native';
 
-import auth from '@react-native-firebase/auth';
+import { useRoute } from '@react-navigation/native';
 
-import Logo from '../../assets/logo_primary.svg';
 import { Button } from '../../components/Button';
 import { TextInput } from '../../components/TextInput';
+
+import Logo from '../../assets/logo_primary.svg';
+
+import { useAuth } from '../../hooks/auth';
+
+type RouteParams = {
+  accountType: string;
+};
 
 export function SignIn(): JSX.Element {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [loading, setLoading] = useState(false);
 
   const passwordInputRef = useRef(null);
+
+  const { isLogging, singIn } = useAuth();
+  const route = useRoute();
+
+  const { accountType } = route.params as RouteParams;
 
   function handleSingIn() {
     if (!email || !password) {
@@ -24,28 +35,7 @@ export function SignIn(): JSX.Element {
       return;
     }
 
-    setLoading(true);
-
-    auth()
-      .signInWithEmailAndPassword(email, password)
-      .catch(error => {
-        setLoading(false);
-
-        if (error.code === 'auth/invalid-email') {
-          Alert.alert('Erro', 'Digite um e-mail válido');
-          return;
-        }
-
-        if (
-          error.code === 'auth/user-not-found' ||
-          error.code === 'auth/wrong-password'
-        ) {
-          Alert.alert('Erro', 'Credenciais inválidas');
-          return;
-        }
-
-        Alert.alert('Erro', 'Não foi possível realizar o login');
-      });
+    singIn({ email, password, accountType });
   }
 
   return (
@@ -81,7 +71,7 @@ export function SignIn(): JSX.Element {
           onSubmitEditing={() => handleSingIn()}
         />
 
-        <Button isLoading={loading} onPress={() => handleSingIn()} w="full">
+        <Button isLoading={isLogging} onPress={() => handleSingIn()} w="full">
           Entrar
         </Button>
       </VStack>

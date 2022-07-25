@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import { FlatList, Heading, HStack, Text, VStack } from 'native-base';
 
 import { useNavigation } from '@react-navigation/native';
-import auth from '@react-native-firebase/auth';
+
 import firestore from '@react-native-firebase/firestore';
 
 import { SignOut } from 'phosphor-react-native';
@@ -13,15 +13,17 @@ import {
   getStatusBarHeight,
 } from 'react-native-iphone-x-helper';
 
-import { Alert } from 'react-native';
-import Logo from '../../assets/logo_secondary.svg';
 import { Button } from '../../components/Button';
 import { EmptyList } from '../../components/EmptyList';
 import { Filter } from '../../components/Filter';
 import { IconButton } from '../../components/IconButton';
 import { Order, OrderCard } from '../../components/OrderCard';
-import { formatDate } from '../../utils/formatDate';
 import { Loading } from '../../components/Loading';
+
+import Logo from '../../assets/logo_secondary.svg';
+
+import { useAuth } from '../../hooks/auth';
+import { formatDate } from '../../utils/formatDate';
 
 export function Home(): JSX.Element {
   const top = getStatusBarHeight();
@@ -33,35 +35,9 @@ export function Home(): JSX.Element {
   const [loading, setLoading] = useState(true);
 
   const navigation = useNavigation();
+  const { singOut } = useAuth();
 
-  const initialOrders: Order[] = [
-    {
-      id: '123',
-      patrimony: '12354687',
-      when: '18/07/2022 as 10:00',
-      status: 'open',
-    },
-    {
-      id: '1234',
-      patrimony: '12354687',
-      when: '18/07/2022 as 10:00',
-      status: 'open',
-    },
-    {
-      id: '1235',
-      patrimony: '12354687',
-      when: '18/07/2022 as 10:00',
-      status: 'open',
-    },
-    {
-      id: '1236',
-      patrimony: '12354687',
-      when: '18/07/2022 as 10:00',
-      status: 'open',
-    },
-  ];
-
-  const [orders, setOrders] = useState<Order[]>(initialOrders);
+  const [orders, setOrders] = useState<Order[]>([]);
 
   function handleNewOrder() {
     navigation.navigate('NewOrder');
@@ -72,21 +48,7 @@ export function Home(): JSX.Element {
   }
 
   function handleSignOut() {
-    Alert.alert('Sair', 'Deseja realmente sair da aplicação?', [
-      {
-        text: 'Cancelar',
-      },
-      {
-        text: 'Sair do App',
-        onPress: () => {
-          auth()
-            .signOut()
-            .catch(() => {
-              Alert.alert('Erro', 'Não foi possível sair da aplicação');
-            });
-        },
-      },
-    ]);
+    singOut();
   }
 
   useEffect(() => {

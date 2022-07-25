@@ -9,6 +9,7 @@ import { Loading } from './src/components/Loading';
 
 import { THEME } from './src/styles/theme';
 import { Routes } from './src/routes';
+import { AuthProvider } from './src/hooks/auth';
 
 export default function App() {
   const [fontsLoaded] = useFonts({
@@ -23,7 +24,7 @@ export default function App() {
         backgroundColor="transparent"
         translucent
       />
-      {fontsLoaded ? <Routes /> : <Loading />}
+      <AuthProvider>{fontsLoaded ? <Routes /> : <Loading />}</AuthProvider>
     </NativeBaseProvider>
   );
 }
