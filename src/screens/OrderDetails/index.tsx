@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { Box, HStack, ScrollView, Text, useTheme, VStack } from 'native-base';
 
@@ -9,63 +9,90 @@ import {
   Clipboard,
   DesktopTower,
   Hourglass,
+  Wrench,
 } from 'phosphor-react-native';
 import { Alert } from 'react-native';
+import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { Header } from '../../components/Header';
-import { Order } from '../../components/OrderCard';
 import { OrderFirestoreDTO } from '../../dtos/order.dto';
 import { formatDate } from '../../utils/formatDate';
 import { Loading } from '../../components/Loading';
 import { CardDetails } from '../../components/CardDetails';
 import { TextInput } from '../../components/TextInput';
 import { Button } from '../../components/Button';
+import { OrderData, useOrders } from '../../hooks/orders';
+import { useAuth } from '../../hooks/auth';
 
 type RouteParams = {
   orderId: string;
 };
 
-type OrderData = Order & {
-  description: string;
-  solution: string;
-  closed: string;
-};
-
 export function OrderDetails(): JSX.Element {
   const [order, setOrder] = useState<OrderData>({} as OrderData);
   const [loading, setLoading] = useState(true);
-  const [solutionLoading, setSolutionLoading] = useState(false);
   const [userSolution, setUserSolution] = useState('');
+
+  const { closeOrder, isClosingOrder, startOrder, isStartingOrder } =
+    useOrders();
 
   const { colors } = useTheme();
   const navigation = useNavigation();
   const route = useRoute();
+  const { user } = useAuth();
 
   const { orderId } = route.params as RouteParams;
 
-  function handleCloseOrder() {
+  const statusType = {
+    closed: {
+      message: 'finalizda',
+      Icon: <CircleWavyCheck size={22} color={colors.green['300']} />,
+      color: colors.green['300'],
+    },
+    started: {
+      message: 'em andamento',
+      Icon: <Wrench size={22} color={colors.primary['700']} />,
+      color: colors.primary['700'],
+    },
+    open: {
+      message: 'em aberto',
+      Icon: <Hourglass size={22} color={colors.secondary['700']} />,
+      color: colors.secondary['700'],
+    },
+  };
+
+  const bottomSheetModalRef = useRef<BottomSheetModal>(null);
+
+  // variables
+  const snapPoints = useMemo(() => ['10%', '75%'], []);
+
+  // callbacks
+  const handleConfirmSolution = useCallback(() => {
+    bottomSheetModalRef.current?.present();
+  }, []);
+
+  async function handleStartOrder() {
+    try {
+      await startOrder(orderId);
+      Alert.alert('Sucesso', 'Solicitação iniciada com sucesso');
+      navigation.navigate('Home');
+    } catch (error) {
+      Alert.alert('Erro', error.message);
+    }
+  }
+
+  async function handleCloseOrder() {
     if (!userSolution) {
       Alert.alert('Erro', 'Informe a solução para encerrar');
       return;
     }
 
-    setSolutionLoading(true);
-
-    firestore()
-      .collection<OrderFirestoreDTO>('orders')
-      .doc(orderId)
-      .update({
-        status: 'closed',
-        solution: userSolution,
-        closedAt: firestore.FieldValue.serverTimestamp(),
-      })
-      .then(() => {
-        Alert.alert('Sucesso', 'Solicitação encerrada com sucesso.');
-        navigation.goBack();
-      })
-      .catch(() => {
-        Alert.alert('Erro', 'Não foi possível encerrar a solicitação');
-        setSolutionLoading(false);
-      });
+    try {
+      await closeOrder(orderId, userSolution);
+      Alert.alert('Sucesso', 'Solicitação finalizada com sucesso');
+      navigation.navigate('Home');
+    } catch (error) {
+      Alert.alert('Erro', error.message);
+    }
   }
 
   useEffect(() => {
@@ -108,19 +135,15 @@ export function OrderDetails(): JSX.Element {
       </Box>
 
       <HStack bg="gray.500" justifyContent="center" p={4}>
-        {order.status === 'closed' ? (
-          <CircleWavyCheck size={22} color={colors.green['300']} />
-        ) : (
-          <Hourglass size={22} color={colors.secondary['700']} />
-        )}
+        {statusType[order.status].Icon}
 
         <Text
           fontSize="sm"
-          color={order.status === 'closed' ? 'green.300' : 'secondary.700'}
+          color={statusType[order.status].color}
           textTransform="uppercase"
           ml={2}
         >
-          {order.status === 'closed' ? 'Finalizdo' : 'Em aberto'}
+          {statusType[order.status].message}
         </Text>
       </HStack>
 
@@ -132,6 +155,7 @@ export function OrderDetails(): JSX.Element {
           title="Equipamento"
           description={`Patrimônio: ${order.patrimony}`}
           icon={DesktopTower}
+          mt={5}
         />
 
         <CardDetails
@@ -139,6 +163,7 @@ export function OrderDetails(): JSX.Element {
           description={order.description}
           icon={Clipboard}
           footer={`Registrado: ${order.when}`}
+          mt={5}
         />
 
         {!!order.solution && (
@@ -147,33 +172,66 @@ export function OrderDetails(): JSX.Element {
             description={order.solution}
             icon={CircleWavyCheck}
             footer={`Encerrado em ${order.closed}`}
+            mt={5}
           />
         )}
+      </ScrollView>
 
-        {order.status === 'open' && (
-          <CardDetails
-            title="solução do problema"
-            description={order.solution}
-            icon={CircleWavyCheck}
-          >
-            <TextInput
-              placeholder="Descrição da solução"
-              onChangeText={setUserSolution}
-              multiline
-              h={24}
-              textAlignVertical="top"
-            />
-
+      {!order.closed && user.accountType === 'worker' && (
+        <Box bg="gray.600" px={4} pb={4}>
+          {order.status === 'started' ? (
+            <Button onPress={() => handleConfirmSolution()} mt={4}>
+              Finalizar Solicitação
+            </Button>
+          ) : (
             <Button
-              isLoading={solutionLoading}
-              onPress={() => handleCloseOrder()}
+              variant="secondary"
+              isLoading={isStartingOrder}
+              onPress={() => handleStartOrder()}
               mt={4}
             >
-              Finalizar
+              Iniciar Solicitação
             </Button>
-          </CardDetails>
-        )}
-      </ScrollView>
+          )}
+        </Box>
+      )}
+
+      <BottomSheetModal
+        ref={bottomSheetModalRef}
+        index={1}
+        enablePanDownToClose
+        snapPoints={snapPoints}
+        handleStyle={{
+          backgroundColor: colors.gray['600'],
+        }}
+        style={{
+          backgroundColor: colors.gray['600'],
+        }}
+      >
+        <CardDetails
+          title="solução do problema"
+          description={order.solution}
+          icon={CircleWavyCheck}
+          h="full"
+        >
+          <TextInput
+            placeholder="Descrição da solução"
+            onChangeText={setUserSolution}
+            multiline
+            flex={1}
+            textAlignVertical="top"
+          />
+
+          <Button
+            isLoading={isClosingOrder}
+            onPress={() => handleCloseOrder()}
+            mt={4}
+            mb={4}
+          >
+            Confirmar
+          </Button>
+        </CardDetails>
+      </BottomSheetModal>
     </VStack>
   );
 }

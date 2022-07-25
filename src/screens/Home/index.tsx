@@ -28,13 +28,8 @@ export function Home(): JSX.Element {
 
   const navigation = useNavigation();
   const { singOut, user } = useAuth();
-  const {
-    orders,
-    isFetchingOrders,
-    selectStatus,
-    selectedStatus,
-    startedOrder,
-  } = useOrders();
+  const { orders, isFetchingOrders, selectStatus, selectedStatus } =
+    useOrders();
 
   function handleNewOrder() {
     navigation.navigate('NewOrder');
@@ -76,36 +71,26 @@ export function Home(): JSX.Element {
           <Text color="gray.200">{orders.length}</Text>
         </HStack>
 
-        <HStack space={3} mb={8}>
-          {user.accountType === 'worker' ? (
-            <>
-              {startedOrder ? (
-                <Filter
-                  isActive={selectedStatus === 'started'}
-                  type="started"
-                  onPress={() => selectStatus('started')}
-                >
-                  Em andamento
-                </Filter>
-              ) : (
-                <Filter
-                  isActive={selectedStatus === 'open'}
-                  type="open"
-                  onPress={() => selectStatus('open')}
-                >
-                  Em Aberto
-                </Filter>
-              )}
-            </>
-          ) : (
+        {user.accountType === 'worker' && (
+          <HStack space={3} mb={3}>
             <Filter
-              isActive={selectedStatus === 'open'}
-              type="open"
-              onPress={() => selectStatus('open')}
+              isActive={selectedStatus === 'started'}
+              type="started"
+              onPress={() => selectStatus('started')}
             >
-              Em Aberto
+              Em andamento
             </Filter>
-          )}
+          </HStack>
+        )}
+
+        <HStack space={3} mb={8}>
+          <Filter
+            isActive={selectedStatus === 'open'}
+            type="open"
+            onPress={() => selectStatus('open')}
+          >
+            Em Aberto
+          </Filter>
 
           <Filter
             isActive={selectedStatus === 'closed'}

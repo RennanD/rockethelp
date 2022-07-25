@@ -1,8 +1,8 @@
-import { VStack, HStack, Text, useTheme, Box } from 'native-base';
+import { VStack, HStack, Text, useTheme, Box, StyledProps } from 'native-base';
 import { IconProps } from 'phosphor-react-native';
 import { ElementType, ReactNode } from 'react';
 
-type CardDetailsProps = {
+type CardDetailsProps = StyledProps & {
   title: string;
   description?: string;
   footer?: string;
@@ -16,11 +16,12 @@ export function CardDetails({
   children,
   description,
   footer,
+  ...rest
 }: CardDetailsProps): JSX.Element {
   const { colors } = useTheme();
 
   return (
-    <VStack bg="gray.600" p={5} mt={5}>
+    <VStack bg="gray.600" p={5} {...rest}>
       <HStack alignItems="center" mb={4}>
         <Icon size={16} color={colors.primary['700']} />
         <Text ml={2} color="gray.300" fontSize="sm" textTransform="uppercase">

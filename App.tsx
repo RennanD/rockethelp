@@ -1,10 +1,14 @@
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
+
 import { NativeBaseProvider, StatusBar } from 'native-base';
+
 import {
   useFonts,
   Roboto_400Regular,
   Roboto_700Bold,
 } from '@expo-google-fonts/roboto';
 
+import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
 import { Loading } from './src/components/Loading';
 
 import { THEME } from './src/styles/theme';
@@ -20,16 +24,20 @@ export default function App() {
 
   return (
     <NativeBaseProvider theme={THEME}>
-      <StatusBar
-        barStyle="light-content"
-        backgroundColor="transparent"
-        translucent
-      />
-      <AuthProvider>
-        <OrdersProvider>
-          {fontsLoaded ? <Routes /> : <Loading />}
-        </OrdersProvider>
-      </AuthProvider>
+      <GestureHandlerRootView style={{ flex: 1 }}>
+        <BottomSheetModalProvider>
+          <StatusBar
+            barStyle="light-content"
+            backgroundColor="transparent"
+            translucent
+          />
+          <AuthProvider>
+            <OrdersProvider>
+              {fontsLoaded ? <Routes /> : <Loading />}
+            </OrdersProvider>
+          </AuthProvider>
+        </BottomSheetModalProvider>
+      </GestureHandlerRootView>
     </NativeBaseProvider>
   );
 }

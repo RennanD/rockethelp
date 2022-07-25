@@ -13,6 +13,7 @@ import {
   ClockAfternoon,
   Hourglass,
   CircleWavyCheck,
+  Wrench,
 } from 'phosphor-react-native';
 
 export type Order = {
@@ -31,8 +32,14 @@ export function OrderCard({ order, ...rest }: OrderProps): JSX.Element {
 
   const colorType = {
     open: colors.secondary['700'],
-    started: colors.secondary['500'],
+    started: colors.primary['700'],
     closed: colors.green['300'],
+  };
+
+  const iconType = {
+    open: <Hourglass size={20} color={colors.secondary['700']} />,
+    started: <Wrench size={22} color={colors.primary['700']} />,
+    closed: <CircleWavyCheck size={22} color={colors.green['300']} />,
   };
 
   return (
@@ -60,11 +67,7 @@ export function OrderCard({ order, ...rest }: OrderProps): JSX.Element {
         </VStack>
 
         <Circle bg="gray.500" h={10} w={10} mr={5}>
-          {order.status === 'closed' ? (
-            <CircleWavyCheck size={20} color={colors.green['500']} />
-          ) : (
-            <Hourglass size={20} color={colors.secondary['700']} />
-          )}
+          {iconType[order.status]}
         </Circle>
       </HStack>
     </Pressable>

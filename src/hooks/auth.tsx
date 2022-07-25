@@ -83,6 +83,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
             .signOut()
             .then(async () => {
               await AsyncStorage.removeItem('@rockethelp:accountType');
+              setIsLogging(false);
               setUser(null);
             })
             .catch(() => {
@@ -95,7 +96,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   useEffect(() => {
     setIsFetchingUser(true);
-    setIsLogging(false);
 
     const subscriber = auth().onAuthStateChanged(async response => {
       const storagedAccountType = await AsyncStorage.getItem(

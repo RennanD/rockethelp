@@ -7,6 +7,7 @@ export const THEME = extendTheme({
     },
     secondary: {
       700: '#FBA94C',
+      500: '#fab05c',
     },
     green: {
       700: '#00875F',

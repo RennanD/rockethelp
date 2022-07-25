@@ -16,7 +16,7 @@ export function Filter({
 
   const colorType = {
     open: colors.secondary['700'],
-    started: colors.secondary['500'],
+    started: colors.primary['700'],
     closed: colors.green['300'],
   };
 
